@@ -8,6 +8,7 @@ const rl = readline.createInterface({
 let tasks = [];
 
 function addTask() {
+  return new Promise((resolve) => {
   rl.question('Enter task description: ', (description) => {
     const task = {
       id: '',
@@ -16,11 +17,13 @@ function addTask() {
     };
     tasks.push(task);
     console.log('Task added successfully!');
-    showMenu();
+    resolve();
   });
+});
 }
 
 function deleteTask() {
+  return new Promise((resolve) => {
   rl.question('Enter index of the task to delete: ', (index) => {
     if (index >= 0 && index < tasks.length) {
       tasks.splice(index, 1);
@@ -28,11 +31,13 @@ function deleteTask() {
     } else {
       console.log('Invalid index. Please try again.');
     }
-    showMenu();
+    resolve();
   });
+});
 }
 
 function completeTask() {
+  return new Promise((resolve) => {
   rl.question('Enter index of the task to mark as completed: ', (index) => {
     if (index >= 0 && index < tasks.length) {
       tasks[index].status = 'Completed';
@@ -40,37 +45,42 @@ function completeTask() {
     } else {
       console.log('Invalid index. Please try again.');
     }
-    showMenu();
+    resolve();
   });
-}
+})
 
 function showTasks() {
-  console.log('Tasks:');
-  tasks.forEach((task, index) => {
-    console.log(`[${index}] id: ${task.id}, Description: ${task.description}, Status: ${task.status}`);
-  });
+  if (tasks.length === 0) {
+    console.log('No tasks found.');
+  } else {
+    console.log('Tasks:');
+    tasks.forEach((task, index) => {
+      console.log(`[${index}] id: ${task.id}, Description: ${task.description}, Status: ${task.status}`);
+    });
+  }
   showMenu();
 }
 
-function showMenu() {
+async function showMenu() {
   console.log('Menu:');
   console.log('1. Add Task');
   console.log('2. Delete Task');
   console.log('3. Complete Task');
   console.log('4. Show Tasks');
   console.log('5. Exit');
-  console.log('\n');
+  console.log();
   
-  rl.question('Choose an option: ', (option) => {
+  const option = await askQuestion('Choose an option: ');
+  
     switch (option) {
       case '1':
-        addTask();
+        await addTask();
         break;
       case '2':
-        deleteTask();
+        await deleteTask();
         break;
       case '3':
-        completeTask();
+        await completeTask();
         break;
       case '4':
         showTasks();
@@ -83,6 +93,14 @@ function showMenu() {
         showMenu();
         break;
     }
+  };
+};
+
+function askQuestion(question) {
+  return new Promise((resolve) => {
+    rl.question(question, (answer) => {
+      resolve(answer);
+    });
   });
 }
 
